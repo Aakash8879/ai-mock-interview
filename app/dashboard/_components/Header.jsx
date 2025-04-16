@@ -1,39 +1,39 @@
-"use client"
+"use client";
+
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+
+const navLinks = [
+  { label: "Dashboard", path: "/dashboard" },
+  { label: "Questions", path: "/dashboard/questions" },
+  { label: "Upgrade", path: "/dashboard/upgrade" },
+  { label: "How It Works?", path: "/dashboard/how-it-works" },
+];
 
 function Header() {
-    const path = usePathname();
-    useEffect(() => {
-        console.log(path);
-    }, []);
-    
-
+  const path = usePathname();
 
   return (
-    <div className="flex p-4 items-center justify-between bg-gray-800 text-white">
-    <img src="/logo.svg" alt="Logo" className="w-40 h-auto" />
-    <ul className="hidden md:flex gap-6">
-    <li className={`hover:text-primary hover:font-bold transition cursor-pointer
-${path == '/dashboard' && 'text-secondary font-bold'}`}
->
-Dashboard</li>
-<li className={`hover:text-primary hover:font-bold transition cursor-pointer
-${path == '/dashboard' && 'text-secondary font-bold'}`}
->
-Questions</li>
-      <li className={`hover:text-primary hover:font-bold transition cursor-pointer
-${path == '/dashboard' && 'text-secondary font-bold'}`}
->
-Upgrade</li>
-<li className={`hover:text-primary hover:font-bold transition cursor-pointer
-${path == '/dashboard' && 'text-secondary font-bold'}`}
->How It Works?</li>
-    </ul>
-   <UserButton/>
-  </div>
+    <div className="flex p-4 items-center justify-between bg-background text-foreground shadow-sm border-b">
+      <img src="/logo.svg" alt="Logo" />
+      <ul className="hidden md:flex gap-6">
+        {navLinks.map((link) => (
+          <li
+            key={link.path}
+            className={`cursor-pointer transition font-medium hover:text-primary 
+              ${
+                path === link.path
+                  ? "text-secondary font-bold"
+                  : "text-muted-foreground"
+              }`}
+          >
+            {link.label}
+          </li>
+        ))}
+      </ul>
+      <UserButton />
+    </div>
   );
 }
 
-export default Header
+export default Header;
