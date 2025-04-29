@@ -79,9 +79,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
           const result = await chatSession.sendMessage(feedbackPrompt);
           const textResponse = result.response.candidates?.[0]?.content?.parts?.[0]?.text || "";
           const cleanText = textResponse.replace("```json", "").replace("```", "").trim();
-
           const JsonFeedbackResp = JSON.parse(cleanText);
-          console.log("Feedback JSON:", JsonFeedbackResp); // 👈 Logs feedback here
 
           toast.success("Answer saved successfully!");
 
@@ -114,7 +112,6 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
   };
 
   const UpdateUserAnswer = async () => {
-    console.log(userAnswer);
     setLoading(true);
     const feedbackPrompt = `Question: ${mockInterviewQuestion[activeQuestionIndex]?.question}, User Answer: ${userAnswer}. Based on the question and answer, provide a rating and a short feedback (3-5 lines) in JSON format with fields 'rating' and 'feedback'.`;
 
@@ -123,9 +120,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
         const result = await chatSession.sendMessage(feedbackPrompt);
         const textResponse = result.response.candidates?.[0]?.content?.parts?.[0]?.text || "";
         const cleanText = textResponse.replace("```json", "").replace("```", "").trim();
-
         const JsonFeedbackResp = JSON.parse(cleanText);
-        console.log("Feedback JSON:", JsonFeedbackResp); // 👈 Logs feedback here too
 
         toast.success("Answer saved successfully!");
 
@@ -144,6 +139,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
           toast("User Answer recorded successfully");
           setResults([]);
         }
+
         setUserAnswer("");
         setResults([]);
         setLoading(false);
@@ -158,7 +154,12 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
   return (
     <div className="flex flex-col items-center justify-center py-10 px-4">
       <div className="relative bg-gray-100 rounded-xl shadow-lg p-4 flex justify-center items-center w-full max-w-md">
-        <Webcam audio mirrored className="rounded-xl z-10" style={{ height: 300, width: "100%" }} />
+        <Webcam
+          audio={false} // ✅ Prevents echo from mic
+          mirrored
+          className="rounded-xl z-10"
+          style={{ height: 300, width: "100%" }}
+        />
       </div>
 
       <Button
@@ -169,8 +170,6 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
       >
         {isRecording ? <Mic className="animate-pulse" /> : "Record Answer"}
       </Button>
-
-      
 
       {interimResult && (
         <p className="text-sm mt-4 text-gray-600 italic">Live: {interimResult}</p>
