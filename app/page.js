@@ -13,6 +13,8 @@ export default function Home() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-100 via-blue-200 to-transparent opacity-30 animate-pulse" />
 
       <div className="z-10 backdrop-blur-md p-10 rounded-xl bg-white/70 shadow-xl max-w-2xl w-full">
+      <div className="flex justify-center p-10">
+      <img src="/logo.svg"></img></div>
         <h1 className="text-4xl font-extrabold text-primary mb-4">
           Welcome to AI Mock Interview
         </h1>
