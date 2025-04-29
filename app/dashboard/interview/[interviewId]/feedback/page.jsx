@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -9,25 +10,51 @@ import { db } from "@/utils/db";
 import { UserAnswer } from "@/utils/schema";
 import { eq } from "drizzle-orm";
 import { ChevronsUpDown } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function Feedback({ params }) {
+function Feedback() {
   const [feedbackList, setFeedbackList] = useState([]);
-  const router=useRouter();
+  const router = useRouter();
+  const params = useParams(); // ✅ Get params safely in client component
 
   useEffect(() => {
-    GetFeedback();
-  }, []);
+    if (params?.interviewId) {
+      GetFeedback(params.interviewId);
+    }
+  }, [params?.interviewId]);
 
-  const GetFeedback = async () => {
+  const GetFeedback = async (interviewId) => {
     const result = await db
       .select()
       .from(UserAnswer)
-      .where(eq(UserAnswer.mockIdRef, params.interviewId))
-      .orderBy(UserAnswer.id);
-    console.log(result);
-    setFeedbackList(result);
+      .where(eq(UserAnswer.mockIdRef, interviewId))
+      .orderBy(UserAnswer.id, "desc"); // Get latest entries first
+  
+    const uniqueMap = new Map();
+  
+    for (const item of result) {
+      if (!uniqueMap.has(item.question)) {
+        uniqueMap.set(item.question, item);
+      }
+      if (uniqueMap.size >= 5) break; // Stop after 5 unique
+    }
+  
+    const latestFiveUnique = Array.from(uniqueMap.values());
+    setFeedbackList(latestFiveUnique);
+  };
+  
+
+  const getOverallRating = () => {
+    const validRatings = feedbackList
+      .map((item) => parseFloat(item.rating))
+      .filter((num) => !isNaN(num));
+
+    if (validRatings.length === 0) return "N/A";
+
+    const total = validRatings.reduce((sum, num) => sum + num, 0);
+    const average = total / validRatings.length;
+    return `${average.toFixed(1)}/10`;
   };
 
   return (
@@ -35,14 +62,14 @@ function Feedback({ params }) {
       <h2 className="text-3xl font-bold text-green-500">Congratulation!</h2>
       <h2 className="font-bold text-2xl">Here is your interview feedback</h2>
 
-      {feedbackList?.length === 0 ? (
+      {feedbackList.length === 0 ? (
         <h2 className="font-bold text-xl text-gray-500 mt-6">
           No Interview Feedback Record Found
         </h2>
       ) : (
         <>
           <h2 className="text-primary text-lg my-3">
-            Your overall interview rating: <strong>7/10</strong>
+            Your overall interview rating: <strong>{getOverallRating()}</strong>
           </h2>
           <h2 className="text-sm text-gray-500 mb-4">
             Find below interview question with correct answer, your answer and feedback for improvement:
@@ -75,10 +102,7 @@ function Feedback({ params }) {
         </>
       )}
 
-      <Button
-        onClick={() => router.replace("/dashboard")}
-        className="mt-6"
-      >
+      <Button onClick={() => router.replace("/dashboard")} className="mt-6">
         Go Home
       </Button>
     </div>

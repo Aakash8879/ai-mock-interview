@@ -1,5 +1,6 @@
+"use client";
 import { Button } from "@/components/ui/button";
-import { db } from "@/utils/db"; // Adjust path as needed
+import { db } from "@/utils/db";
 import { UserAnswer } from "@/utils/schema";
 import { useUser } from "@clerk/nextjs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -26,6 +27,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
   const [chatSession, setChatSession] = useState(null);
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const [cameraOn, setCameraOn] = useState(true); // NEW STATE
 
   const {
     error,
@@ -153,13 +155,24 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
 
   return (
     <div className="flex flex-col items-center justify-center py-10 px-4">
-      <div className="relative bg-gray-100 rounded-xl shadow-lg p-4 flex justify-center items-center w-full max-w-md">
-        <Webcam
-          audio={false} // ✅ Prevents echo from mic
-          mirrored
-          className="rounded-xl z-10"
-          style={{ height: 300, width: "100%" }}
-        />
+      <div className="relative bg-gray-100 rounded-xl shadow-lg p-4 flex justify-center items-center w-full max-w-md h-[300px]">
+        {cameraOn ? (
+          <Webcam
+            audio={false}
+            mirrored
+            className="rounded-xl z-10 w-full h-full object-cover"
+            onUserMediaError={() => setCameraOn(false)} // Handle camera error
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center w-full h-full bg-gray-200 rounded-xl">
+            <img
+              src="/webcam.png" // ✅ Replace with your placeholder image path
+              alt="Camera Off"
+              className="w-24 h-24 opacity-60 w-full h-full p-10"
+            />
+            <p className="text-sm text-gray-500 mt-2">Camera not On</p>
+          </div>
+        )}
       </div>
 
       <Button
